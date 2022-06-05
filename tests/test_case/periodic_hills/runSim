@@ -1,0 +1,6 @@
+#!/bin/sh
+cd ${0%/*} || exit 1                        # Run from this directory
+. /opt/openfoam9/bin/tools/RunFunctions    # Tutorial run functions
+
+application=$(getApplication)
+runApplication "$application"

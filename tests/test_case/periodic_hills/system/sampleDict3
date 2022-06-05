@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      sampleDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type	sets;
+libs ("libsampling.so");
+// Set output format : choice of
+//      xmgr
+//      jplot
+//      gnuplot
+//      raw
+//      vtk
+//      csv
+setFormat csv;
+
+
+interpolationScheme cellPoint;
+
+// Fields to sample.
+fields
+(
+    multbetaStarField
+);
+
+
+
+writeControl    timeStep;
+writeInterval   3000;
+
+
+sets
+(
+    lineuh_2
+    {
+        type    lineFace;
+        axis    y;
+        start   (3 3.035 0);
+        end     (3 0 0);
+        nPoints 100;
+    }
+);
+
+
+// *********************************************************************** //

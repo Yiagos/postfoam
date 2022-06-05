@@ -1,0 +1,129 @@
+
+/*--------------------------------*- C++ -*----------------------------------*| =========                 |                                                 |
+| \      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \    /   O peration     | Version:  2.1.1                                 |
+|   \  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     simpleFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         3000;
+
+deltaT          1;
+
+writeControl    runTime;
+
+writeInterval   3000;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      fixed;
+
+timePrecision   0;
+
+runTimeModifiable true;
+
+libs ("libmyMomentumTransportModels.so");
+
+functions
+    {
+fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+
+        fields
+        (
+            U
+            {
+                mean        on;
+                prime2Mean  on;
+                base        time;
+            }
+        );
+    }
+
+grad1
+{
+    // Mandatory entries (unmodifiable)
+    type            grad;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    writeTime;
+
+    // Mandatory (inherited) entries (runtime modifiable)
+    field           p;
+
+}
+
+grad2
+{
+    // Mandatory entries (unmodifiable)
+    type            grad;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    writeTime;
+
+    // Mandatory (inherited) entries (runtime modifiable)
+    field           U;
+
+}
+
+grad2
+{
+    // Mandatory entries (unmodifiable)
+    type            grad;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    writeTime;
+
+    // Mandatory (inherited) entries (runtime modifiable)
+    field           U;
+
+}
+
+grad3
+{
+    // Mandatory entries (unmodifiable)
+    type            grad;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    writeTime;
+
+    // Mandatory (inherited) entries (runtime modifiable)
+    field           k;
+
+}
+
+Qcrit
+{
+    // Mandatory entries (unmodifiable)
+    type            Q;
+    libs            ("libfieldFunctionObjects.so");
+    writeControl    writeTime;
+
+}
+
+        #includeFunc    sampleDict4;
+        #includeFunc    sampleDict2;
+    }
+// ************************************************************************* //

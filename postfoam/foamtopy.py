@@ -1,5 +1,4 @@
 from array import array
-from matplotlib.patches import Polygon
 import numpy as np
 import matplotlib
 matplotlib.use('agg')
@@ -8,8 +7,7 @@ from os import listdir
 import os.path  
 from scipy.interpolate import griddata
 import re
-from shapely.geometry import Point
-from shapely.geometry.polygon import Polygon
+
 
 class FoamCase:
     def __init__(self, filepath, time = None):
@@ -238,16 +236,19 @@ class FoamCase:
         cont_line = cont_line[1:,:]
         return cont_line, bottom, top, left, right
 
-    def plotSurface(self, field: str, index: int = None):
+    def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: str = 'n', show: str = 'y'):
         '''Cell coordinates have to be present in file C'''
+        plt.figure()
         x = self.parameters.get('C')[:,0]
         y = self.parameters.get('C')[:,1]
         xi,yi,zi = self.interp_data(field, index)
         plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
-        #plt.contourf(xi, yi, zi, cmap='viridis')
         self.plot_boundary()
-        plt.savefig('out.png', dpi = 300, bbox_inches='tight')
-        plt.show()
+        if colorbar == 'y':
+            plt.colorbar()
+        if show == 'y':
+            plt.savefig(out, dpi = 300, bbox_inches='tight')
+            plt.show()
 
     def plot_boundary(self):
         boundary, bottom, top, left, right = self.get_mask_line()

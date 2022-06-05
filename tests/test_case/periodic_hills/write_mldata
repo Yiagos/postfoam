@@ -1,0 +1,9 @@
+cp ./3000/k /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/nut /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/U /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/grad\(p\) /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/UPrime2Mean /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/grad\(U\) /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/omega /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/Q /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
+cp ./3000/grad\(k\) /mnt/c/Users/Yiagos/Documents/Aerospace\ 3rd/Individual\ Project/Code/periodicHills/ml_data/
