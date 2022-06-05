@@ -23,6 +23,11 @@ plt.figure()
 xi,yi,zi = pe_hills.interp_data('U', 0)
 plt.contourf(xi, yi, zi, 20, cmap='viridis')
 #plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
-pe_hills.plot_boundary()
 plt.savefig('contour_U.png', dpi = 300, bbox_inches='tight')
 plt.show()
+
+'''Testing for different case'''
+pitzDaily = fp.FoamCase("/home/yiagoskyrits/postfoam/tests/test_case/pitzDaily", 200)
+pitzDaily.show_parameters()
+pitzDaily.plotSurface('p')
+line = pitzDaily.get_lineFace(start=[0, 0, 0], end=[0, 1, 0], field="U", index=0, nPoints=100)

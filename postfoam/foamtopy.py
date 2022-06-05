@@ -7,6 +7,8 @@ from os import listdir
 import os.path  
 from scipy.interpolate import griddata
 import re
+from matplotlib.path import Path
+
 
 
 class FoamCase:
@@ -174,67 +176,15 @@ class FoamCase:
         yi = np.linspace(min(y),max(y),3000)
         xi, yi = np.meshgrid(xi,yi)
         zi = griddata((x,y),z,(xi,yi),method='linear')
+
+        bounds = self.get_mask_line()
+        points = np.vstack((xi.flatten(),yi.flatten())).T
+        path = Path(bounds)
+        grid = path.contains_points(points)
+        grid = grid.reshape((len(yi),len(xi)))
+        zi[grid == False] = np.nan
+
         return xi,yi,zi
-
-    def get_mask_line(self):
-        xy_bounds = self.read_boundary()
-        inv_index = np.array([0],dtype = int)
-        for i in range(2,len(xy_bounds)):
-            if abs(xy_bounds[i,0]-xy_bounds[i-1,0])>(max(xy_bounds[:,0])-min(xy_bounds[:,0]))/10 or abs(xy_bounds[i,1]-xy_bounds[i-1,1])>(max(xy_bounds[:,1])-min(xy_bounds[:,1]))/10: 
-                inv_index = np.append(inv_index,i)
-        inv_index = np.append(inv_index,len(xy_bounds))
-        boundary_types = np.array([])
-        for i in range(1,len(inv_index)):
-            if max(xy_bounds[inv_index[i-1]:inv_index[i],1]) <= min(np.delete(xy_bounds,np.arange(inv_index[i-1],inv_index[i],1), axis=0)[:,1]):
-                boundary_types = np.append(boundary_types, 'bottom')
-            elif max(xy_bounds[inv_index[i-1]:inv_index[i],1]) >= max(np.delete(xy_bounds,np.arange(inv_index[i-1],inv_index[i],1), axis=0)[:,1]):
-                boundary_types = np.append(boundary_types, 'top')
-            elif max(xy_bounds[inv_index[i-1]:inv_index[i],0]) <= min(np.delete(xy_bounds,np.arange(inv_index[i-1],inv_index[i],1), axis=0)[:,0]):
-                boundary_types = np.append(boundary_types, 'left')
-            elif min(xy_bounds[inv_index[i-1]:inv_index[i],0]) >= max(np.delete(xy_bounds,np.arange(inv_index[i-1],inv_index[i],1), axis=0)[:,0]):
-                boundary_types = np.append(boundary_types, 'right')
-            else:
-                print('Error boundary not found')
-
-        line_completed = False
-        line = np.empty([1,2])
-        while not line_completed:
-            if 'bottom' in boundary_types:
-                i = np.where(boundary_types=='bottom')[0][0] + 1
-                line = np.vstack((line,xy_bounds[inv_index[i-1]:inv_index[i],:]))
-                bottom = xy_bounds[inv_index[i-1]:inv_index[i],:]
-                boundary_types[np.where(boundary_types=='bottom')] = 'skip'
-            elif 'right' in boundary_types:
-                i = np.where(boundary_types=='right')[0][0] + 1
-                line = np.vstack((line,xy_bounds[inv_index[i-1]:inv_index[i],:]))
-                right = xy_bounds[inv_index[i-1]:inv_index[i],:]
-                boundary_types[np.where(boundary_types=='right')] = 'skip'
-            elif 'top' in boundary_types:
-                i = np.where(boundary_types=='top')[0][0] + 1
-                line = np.vstack((line,xy_bounds[inv_index[i-1]:inv_index[i],:]))
-                boundary_types[np.where(boundary_types=='top')] = 'skip'
-                top = xy_bounds[inv_index[i-1]:inv_index[i],:]
-            elif 'left' in boundary_types:
-                i = np.where(boundary_types=='left')[0][0] + 1
-                line = np.vstack((line,xy_bounds[inv_index[i-1]:inv_index[i],:]))
-                left = xy_bounds[inv_index[i-1]:inv_index[i],:]
-                boundary_types[np.where(boundary_types=='left')] = 'skip'
-                line_completed = True
-        line = line[1:,:]
-            
-        inv_index = np.array([0],dtype = int)
-        for i in range(2,len(line)):
-            if abs(line[i,0]-line[i-1,0])>(max(line[:,0])-min(line[:,0]))/10 or abs(line[i,1]-line[i-1,1])>(max(line[:,1])-min(line[:,1]))/10: 
-                inv_index = np.append(inv_index,i)
-        inv_index = np.append(inv_index,len(line))
-        cont_line = np.empty([1,2])
-        for i in range(1,len(inv_index)):
-            if i % 2 != 0:
-                cont_line = np.vstack((cont_line,line[inv_index[i-1]:inv_index[i],:]))
-            else:
-                cont_line = np.vstack((cont_line,line[inv_index[i-1]:inv_index[i],:][::-1]))
-        cont_line = cont_line[1:,:]
-        return cont_line, bottom, top, left, right
 
     def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: str = 'n', show: str = 'y'):
         '''Cell coordinates have to be present in file C'''
@@ -243,16 +193,40 @@ class FoamCase:
         y = self.parameters.get('C')[:,1]
         xi,yi,zi = self.interp_data(field, index)
         plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
-        self.plot_boundary()
         if colorbar == 'y':
             plt.colorbar()
         if show == 'y':
             plt.savefig(out, dpi = 300, bbox_inches='tight')
             plt.show()
 
-    def plot_boundary(self):
-        boundary, bottom, top, left, right = self.get_mask_line()
-        plt.fill_between(bottom[:,0],bottom[:,1], min(boundary[:,1]), color = 'w')
-        plt.fill_between(top[:,0],top[:,1], max(boundary[:,1]), color = 'w')
-        plt.fill_betweenx(left[:,1],left[:,0], min(boundary[:,0]), color = 'w')
-        plt.fill_betweenx(right[:,1],right[:,0], max(boundary[:,0]), color = 'w')
+    def get_mask_line(self):
+        xy_bounds = self.read_boundary()
+        inv_index = np.array([0],dtype = int)
+        for i in range(2,len(xy_bounds)):
+            if abs(xy_bounds[i,0]-xy_bounds[i-1,0])>(max(xy_bounds[:,0])-min(xy_bounds[:,0]))/10 or abs(xy_bounds[i,1]-xy_bounds[i-1,1])>(max(xy_bounds[:,1])-min(xy_bounds[:,1]))/10: 
+                inv_index = np.append(inv_index,i)
+        inv_index = np.append(inv_index,len(xy_bounds))
+        lines = {}
+        for i in range(1,len(inv_index)):
+            lines[i-1] = xy_bounds[inv_index[i-1]:inv_index[i],:]
+
+        line_completed = False
+        line = lines.get(0)
+        while not line_completed:
+            dx = np.inf
+            for i in range(1,len(inv_index)-1):
+                dx_1 = np.sqrt((lines.get(i)[0,0]-line[-1,0])**2+(lines.get(i)[0,1]-line[-1,1])**2)
+                dx_2 = np.sqrt((lines.get(i)[-1,0]-line[-1,0])**2+(lines.get(i)[-1,1]-line[-1,1])**2)
+                if min(dx_1,dx_2)<dx:
+                    dx = min(dx_1,dx_2)
+                    next_line = i
+            if dx_2<dx_1:
+                line = np.vstack((line,lines.get(next_line)[::-1]))
+            else:
+                line = np.vstack((line,lines.get(next_line)))
+            lines[next_line]=np.full((lines[next_line].shape[0], lines[next_line].shape[1]), np.inf)
+            if dx == np.inf:
+                line_completed = True    
+        return line
+
+    '''Add create field option, plot boundary'''
