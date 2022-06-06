@@ -186,16 +186,16 @@ class FoamCase:
 
         return xi,yi,zi
 
-    def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: str = 'n', show: str = 'y'):
+    def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: bool = False, show: bool = True):
         '''Cell coordinates have to be present in file C'''
         plt.figure()
         x = self.parameters.get('C')[:,0]
         y = self.parameters.get('C')[:,1]
         xi,yi,zi = self.interp_data(field, index)
         plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
-        if colorbar == 'y':
+        if colorbar:
             plt.colorbar()
-        if show == 'y':
+        if show:
             plt.savefig(out, dpi = 300, bbox_inches='tight')
             plt.show()
 
@@ -244,5 +244,9 @@ class FoamCase:
     def add_constant(self, constant_name: str, value):
         self.parameters[constant_name]=value
 
+    def plotGeometry(self, out = "out.png"):
+        self.parameters['Surface']=np.ones(len(self.parameters.get('C')[:,0]))
+        self.plotSurface('Surface')
 
-    '''Add create field option, plot boundary, read postfoam'''
+
+    '''plot boundary, plot mesh, read postfoam'''

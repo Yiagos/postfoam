@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 
 pe_hills = fp.FoamCase("/home/yiagoskyrits/postfoam/tests/test_case/periodic_hills")
 pe_hills.show_parameters()
+pe_hills.plotGeometry()
 U = pe_hills.get_data("U")
 
-pe_hills.plotSurface('k', out = "surface_k.png", colorbar='y')
+pe_hills.plotSurface('k', out = "surface_k.png", colorbar=True)
 
-pe_hills.plotSurface('U', 0 , show = 'n')
+pe_hills.plotSurface('U', 0 , show = False)
 plt.colorbar(fraction=0.046, shrink=0.67)
 plt.savefig('surface_U.png', dpi = 300, bbox_inches='tight')
 plt.show()
@@ -34,6 +35,7 @@ pe_hills.show_parameters()
 '''Testing for different case'''
 pitzDaily = fp.FoamCase("/home/yiagoskyrits/postfoam/tests/test_case/pitzDaily", 200)
 pitzDaily.show_parameters()
+pitzDaily.plotGeometry("pitzDaily")
 pitzDaily.plotSurface('p')
 line = pitzDaily.get_lineFace(start=[0, 0, 0], end=[0, 1, 0], field="U", index=0, nPoints=100)
 pitzDaily.create_field('k_norm', 'k / U[0] **2')
