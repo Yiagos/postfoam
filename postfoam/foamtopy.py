@@ -15,6 +15,7 @@ class FoamCase:
     def __init__(self, filepath, time = None):
         self.filepath = filepath
         self.parameters = {}
+        self.postParameters = {}
 
         self.get_parameters(time)
 
@@ -248,5 +249,45 @@ class FoamCase:
         self.parameters['Surface']=np.ones(len(self.parameters.get('C')[:,0]))
         self.plotSurface('Surface')
 
+    def read_postData(self, folder_name = 'all', time = None):
+        '''Can read csv files'''
+        if time == None:
+            numbers=[]
+            for i in listdir(self.filepath):
+                try:
+                    if '.' in i:
+                        numbers.append(float(i))
+                    else:
+                        numbers.append(int(i))
+                except:
+                    pass
+            time = max(numbers)
+        else:
+            pass
+        try:
+            if folder_name != 'all':
+                for i in listdir(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)):
+                    try:
+                        if os.path.isfile(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)+'/'+i):
+                            self.postParameters[i[:-4]] = np.loadtxt(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)+'/'+i, skiprows=1, delimiter=',')
+                    except:
+                        print('Files could not be read')
+                        break
+                print('Post data found: ', end = ' ')
+                print(*list(self.postParameters.keys()), sep = ', ')
+            else:
+                for folder_name in listdir(self.filepath+'/postProcessing/'):
+                    for i in listdir(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)):
+                        try:
+                            if os.path.isfile(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)+'/'+i):
+                                self.postParameters[i[:-4]] = np.loadtxt(self.filepath+'/postProcessing/'+folder_name+'/'+str(time)+'/'+i, skiprows=1, delimiter=',')
+                        except:
+                            print('Files could not be read')
+                            break
+                print('Post data found: ', end = ' ')
+                print(*list(self.postParameters.keys()), sep = ', ')
+        except:
+            print('Folder not found')
 
-    '''plot boundary, plot mesh, read postfoam'''
+
+    '''plot mesh, read postfoam'''

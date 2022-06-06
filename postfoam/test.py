@@ -32,6 +32,10 @@ pe_hills.add_constant('U_ref', 0.2)
 pe_hills.create_field("Ux/U_ref", "U[0] / U_ref")
 pe_hills.show_parameters()
 
+'''Get postprocessing data'''
+pe_hills.read_postData()
+U_line = pe_hills.postParameters.get('lineuh_1_U')[:,0]
+
 '''Testing for different case'''
 pitzDaily = fp.FoamCase("/home/yiagoskyrits/postfoam/tests/test_case/pitzDaily", 200)
 pitzDaily.show_parameters()
