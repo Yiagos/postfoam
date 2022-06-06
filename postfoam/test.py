@@ -26,8 +26,14 @@ plt.contourf(xi, yi, zi, 20, cmap='viridis')
 plt.savefig('contour_U.png', dpi = 300, bbox_inches='tight')
 plt.show()
 
+'''Manipulate fields'''
+pe_hills.add_constant('U_ref', 0.2)
+pe_hills.create_field("Ux/U_ref", "U[0] / U_ref")
+pe_hills.show_parameters()
+
 '''Testing for different case'''
 pitzDaily = fp.FoamCase("/home/yiagoskyrits/postfoam/tests/test_case/pitzDaily", 200)
 pitzDaily.show_parameters()
 pitzDaily.plotSurface('p')
 line = pitzDaily.get_lineFace(start=[0, 0, 0], end=[0, 1, 0], field="U", index=0, nPoints=100)
+pitzDaily.create_field('k_norm', 'k / U[0] **2')

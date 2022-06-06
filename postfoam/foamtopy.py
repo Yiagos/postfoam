@@ -229,4 +229,20 @@ class FoamCase:
                 line_completed = True    
         return line
 
-    '''Add create field option, plot boundary'''
+    def create_field(self, field_name: str, equation: str):
+        'Space is required between the equation variables'
+        s = equation.split(" ")
+        for i in range(0,len(s)):
+            if s[i] in list(self.parameters.keys()) or s[i][:-3] in list(self.parameters.keys()):
+                if "[" in s[i]:
+                    s[i] = "self.parameters.get('" + s[i][:-3] +  "')" + '[' + ':,' + s[i][-2:]
+                else:
+                    s[i] = "self.parameters.get('" + s[i] + "')"
+        s = ''.join(s)
+        self.parameters[field_name] = eval(s)
+
+    def add_constant(self, constant_name: str, value):
+        self.parameters[constant_name]=value
+
+
+    '''Add create field option, plot boundary, read postfoam'''
