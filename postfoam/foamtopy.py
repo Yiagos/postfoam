@@ -8,6 +8,8 @@ import os.path
 from scipy.interpolate import griddata
 import re
 from matplotlib.path import Path
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib import ticker
 
 
 
@@ -190,12 +192,18 @@ class FoamCase:
     def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: bool = False, show: bool = True):
         '''Cell coordinates have to be present in file C'''
         plt.figure()
+        ax = plt.subplot()
         x = self.parameters.get('C')[:,0]
         y = self.parameters.get('C')[:,1]
         xi,yi,zi = self.interp_data(field, index)
-        plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
+        im = plt.imshow(zi, extent=[min(x),max(x),min(y),max(y)], origin='lower', cmap='viridis')
         if colorbar:
-            plt.colorbar()
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            cb = plt.colorbar(im, cax=cax)
+            tick_locator = ticker.MaxNLocator(nbins=5)
+            cb.locator = tick_locator
+            cb.update_ticks()
         if show:
             plt.savefig(out, dpi = 300, bbox_inches='tight')
             plt.show()
@@ -290,4 +298,4 @@ class FoamCase:
             print('Folder not found')
 
 
-    '''plot mesh, read postfoam'''
+    
