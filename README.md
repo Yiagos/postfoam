@@ -1,5 +1,5 @@
 # postfoam
-A python library for postporcessing openfoam simulations. (Currently limited to 2D geometries)
+A python library for postprocessing openfoam simulations. (Currently limited to 2D geometries)
 ## Installing
 ```
 pip install wheel
