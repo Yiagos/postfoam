@@ -14,13 +14,13 @@ classifiers = [
 setup(
     name='postfoam',
     packages=find_packages(include=['postfoam']),
-    version='0.1.0',
+    version='0.1.3',
     description='A python library for postporcessing openfoam simulations.',
     long_description=open('README.md').read(),
     author='Ioannis Kyritsopoulos',
     author_email='yiagoskyrits@gmail.com',
     keywords=['OpenFOAM', 'postprocessing'],
     classifiers=classifiers,
-    install_requires=['numpy','array','matplotlib','scipy','re'],
+    install_requires=['numpy','matplotlib','scipy'],
     license='MIT',
 )

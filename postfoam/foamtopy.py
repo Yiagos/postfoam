@@ -1,4 +1,4 @@
-from array import array
+#from array import array
 import numpy as np
 import matplotlib
 matplotlib.use('agg')
@@ -158,7 +158,7 @@ class FoamCase:
     def file_path(self):
         return self.filepath
 
-    def get_lineFace(self, start: array, end: array, field: str, index: int, nPoints: int):
+    def get_lineFace(self, start: np.array, end: np.array, field: str, index: int, nPoints: int):
         coords = np.vstack((np.linspace(start[0],end[0],nPoints),np.linspace(start[1],end[1],nPoints))).T
         xi,yi,zi = self.interp_data(field, index)
         lines = np.zeros((nPoints,1))
