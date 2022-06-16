@@ -14,7 +14,7 @@ classifiers = [
 setup(
     name='postfoam',
     packages=find_packages(include=['postfoam']),
-    version='0.1.3',
+    version='0.1.4',
     description='A python library for postporcessing openfoam simulations.',
     long_description=open('README.md').read(),
     author='Ioannis Kyritsopoulos',
@@ -24,3 +24,7 @@ setup(
     install_requires=['numpy','matplotlib','scipy'],
     license='MIT',
 )
+
+'''To publish use'''
+# python3 setup.py sdist
+# twine upload --skip-existing dist/*
