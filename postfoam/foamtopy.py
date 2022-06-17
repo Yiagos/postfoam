@@ -297,5 +297,3 @@ class FoamCase:
         except:
             print('Folder not found')
 
-
-    '''Use without C'''
