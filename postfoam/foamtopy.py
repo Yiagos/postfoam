@@ -100,7 +100,7 @@ class FoamCase:
         point4 = self.get_points()[point_index[:,3].astype(int)]
         cell_center = np.vstack(((point1[:,0]+point2[:,0]+point3[:,0]+point4[:,0])/4, ((point1[:,1]+point2[:,1]+point3[:,1]+point4[:,1])/4))).T
         return cell_center
-           
+
     def get_points(self):
         return self.read_vectorField('/constant/polyMesh/points')
 
