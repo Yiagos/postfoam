@@ -189,7 +189,7 @@ class FoamCase:
 
         return xi,yi,zi
 
-    def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: bool = False, show: bool = True):
+    def plotSurface(self, field: str, index: int = None, out = "out.png", colorbar: bool = False, show: bool = True, save: bool = True):
         '''Cell coordinates have to be present in file C'''
         plt.figure()
         ax = plt.subplot()
@@ -204,8 +204,9 @@ class FoamCase:
             tick_locator = ticker.MaxNLocator(nbins=5)
             cb.locator = tick_locator
             cb.update_ticks()
-        if show:
+        if save:
             plt.savefig(out, dpi = 300, bbox_inches='tight')
+        if show:
             plt.show()
 
     def get_mask_line(self):
