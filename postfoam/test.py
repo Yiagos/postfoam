@@ -8,7 +8,7 @@ U = pe_hills.get_data("U")
 
 pe_hills.plotSurface('k', out = "surface_k.png", colorbar=True)
 
-pe_hills.plotSurface('U', 0 , show = False, colorbar=True)
+pe_hills.plotSurface('U', 0 , show = False, save = False, colorbar=True)
 plt.savefig('surface_U.png', dpi = 300, bbox_inches='tight')
 plt.show()
 
