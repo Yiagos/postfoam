@@ -1,4 +1,3 @@
-#from array import array
 import numpy as np
 import matplotlib
 matplotlib.use('agg')
@@ -10,16 +9,19 @@ import re
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import ticker
+import pandas as pd
 
 
 
 class FoamCase:
-    def __init__(self, filepath, time = None):
+    def __init__(self, filepath, time = None, readfromfile = False):
         self.filepath = filepath
         self.parameters = {}
         self.postParameters = {}
-
-        self.get_parameters(time)
+        if not readfromfile:
+            self.get_parameters(time)
+        else:
+            self.load_pffile()
 
 
     def read_vectorField(self, path):
@@ -52,10 +54,13 @@ class FoamCase:
         c1 = np.loadtxt(self.filepath+path, dtype=str,usecols=0, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
         c2 = np.loadtxt(self.filepath+path, dtype=str,usecols=1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
         c3 = np.loadtxt(self.filepath+path, dtype=str,usecols=2, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
-        c4 = np.loadtxt(self.filepath+path, dtype=str,usecols=3, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c4 = np.loadtxt(self.filepath+path, dtype=str,usecols=-1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
         for i in range(0,len(c1)):
             c1[i] = c1[i][2:]
-            c4[i] = c4[i][:-1]
+            if c4[i][-1]==')':
+                c4[i] = c4[i][:-1]
+            if c3[i][-1]==')':
+                c3[i] = c3[i][:-1]
         c1 = c1.astype(float)
         c2 = c2.astype(float)
         c3 = c3.astype(float)
@@ -81,6 +86,8 @@ class FoamCase:
                                 empty = True
                             elif match[0] == 'nFaces':
                                 nFaces = match[1]
+                                if int(nFaces)>1000:
+                                    empty=True
                             elif match[0] == 'startFace':
                                 startFace = match[1]
                         except:
@@ -175,12 +182,14 @@ class FoamCase:
         z = self.parameters.get(field)
         if index != None:
             z = z[:,index]
-        xi = np.linspace(min(x),max(x),3000)
-        yi = np.linspace(min(y),max(y),3000)
+        xi = np.linspace(min(x),max(x),1000)
+        yi = np.linspace(min(y),max(y),1000)
         xi, yi = np.meshgrid(xi,yi)
         zi = griddata((x,y),z,(xi,yi),method='linear')
 
         bounds = self.get_mask_line()
+        if len(bounds)>10000:
+            bounds = bounds[::50]
         points = np.vstack((xi.flatten(),yi.flatten())).T
         path = Path(bounds)
         grid = path.contains_points(points)
@@ -212,9 +221,17 @@ class FoamCase:
     def get_mask_line(self):
         xy_bounds = self.read_boundary()
         inv_index = np.array([0],dtype = int)
-        for i in range(2,len(xy_bounds)):
-            if abs(xy_bounds[i,0]-xy_bounds[i-1,0])>(max(xy_bounds[:,0])-min(xy_bounds[:,0]))/10 or abs(xy_bounds[i,1]-xy_bounds[i-1,1])>(max(xy_bounds[:,1])-min(xy_bounds[:,1]))/10: 
-                inv_index = np.append(inv_index,i)
+        'Update'
+        diff_x = abs(xy_bounds[1:,0]-xy_bounds[:-1,0])
+        diff_y = abs(xy_bounds[1:,1]-xy_bounds[:-1,1])
+        cond_x = (max(xy_bounds[:,0])-min(xy_bounds[:,0]))/10
+        cond_y = (max(xy_bounds[:,1])-min(xy_bounds[:,1]))/10
+        for i in range(0,len(diff_x)):
+            if diff_x[i]>cond_x or diff_y[i]>cond_y: 
+                inv_index = np.append(inv_index,i+1)
+        #for i in range(2,len(xy_bounds)):
+        #    if abs(xy_bounds[i,0]-xy_bounds[i-1,0])>(max(xy_bounds[:,0])-min(xy_bounds[:,0]))/10 or abs(xy_bounds[i,1]-xy_bounds[i-1,1])>(max(xy_bounds[:,1])-min(xy_bounds[:,1]))/10: 
+        #        inv_index = np.append(inv_index,i)
         inv_index = np.append(inv_index,len(xy_bounds))
         lines = {}
         for i in range(1,len(inv_index)):
@@ -224,19 +241,21 @@ class FoamCase:
         line = lines.get(0)
         while not line_completed:
             dx = np.inf
+            dx_1=np.empty(len(lines)-1)
+            dx_2=np.empty(len(lines)-1)
             for i in range(1,len(inv_index)-1):
-                dx_1 = np.sqrt((lines.get(i)[0,0]-line[-1,0])**2+(lines.get(i)[0,1]-line[-1,1])**2)
-                dx_2 = np.sqrt((lines.get(i)[-1,0]-line[-1,0])**2+(lines.get(i)[-1,1]-line[-1,1])**2)
-                if min(dx_1,dx_2)<dx:
-                    dx = min(dx_1,dx_2)
+                dx_1[i-1] = np.sqrt((lines.get(i)[0,0]-line[-1,0])**2+(lines.get(i)[0,1]-line[-1,1])**2)
+                dx_2[i-1] = np.sqrt((lines.get(i)[-1,0]-line[-1,0])**2+(lines.get(i)[-1,1]-line[-1,1])**2)
+                if min(dx_1[i-1],dx_2[i-1])<dx:
+                    dx = min(dx_1[i-1],dx_2[i-1])
                     next_line = i
-            if dx_2<dx_1:
+            if dx_2[next_line-1]<dx_1[next_line-1]:
                 line = np.vstack((line,lines.get(next_line)[::-1]))
             else:
                 line = np.vstack((line,lines.get(next_line)))
             lines[next_line]=np.full((lines[next_line].shape[0], lines[next_line].shape[1]), np.inf)
             if dx == np.inf:
-                line_completed = True    
+                line_completed = True 
         return line
 
     def create_field(self, field_name: str, equation: str):
@@ -298,3 +317,53 @@ class FoamCase:
         except:
             print('Folder not found')
 
+    def load_pffile(self):
+        'Not working currently'
+        df = pd.read_pickle(self.filepath)
+        for col in df.columns:
+            if "post" not in col:
+                if "#" not in col:
+                    self.parameters[col]=df.loc[:,col].to_numpy().T
+                else:
+                    if col[:-2] not in self.parameters.keys():
+                        self.parameters[col[:-2]]=df.loc[:,col].to_numpy().T
+                    else:
+                        self.parameters[col[:-2]]=np.vstack((self.parameters.get(col[:-2]).T, df.loc[:,col].to_numpy())).T
+            else:
+                pass
+        print(self.parameters.get('C'))
+
+
+def savepf(Case: FoamCase, filename: str = "FoamCase.pf"):
+    df = pd.DataFrame()
+    index = 0
+    for key in list(Case.parameters.keys()):
+        try:
+            if Case.parameters.get(key).ndim == 1:
+                df.insert(index, key, Case.parameters.get(key))
+                index+=1
+            else:
+                for i in range(0,Case.parameters.get(key).shape[1]):
+                    df.insert(index, key+'#'+str(i), Case.parameters.get(key)[:,i])
+                    index+=1
+        except AttributeError:
+            pass
+    Case.read_postData()
+    for key in list(Case.postParameters.keys()):
+        try:
+            if Case.postParameters.get(key).ndim == 1:
+                df.insert(index, key+'_post', Case.postParameters.get(key))
+                index+=1
+            else:
+                for i in range(0,Case.postParameters.get(key).shape[1]):
+                    data = np.full(len(df), np.NaN)
+                    data[0:len(Case.postParameters.get(key)[:,i])] = Case.postParameters.get(key)[:,i]
+                    df.insert(index, key+'#'+str(i)+'_post', data)
+                    index+=1
+        except AttributeError:
+            pass
+    df.to_pickle(filename)
+    
+def loadpf(path: str):
+    'Not working currently'
+    return FoamCase(path, readfromfile=True)
