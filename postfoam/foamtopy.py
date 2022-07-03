@@ -42,6 +42,60 @@ class FoamCase:
         c3 = c3.astype(float)
         return np.vstack((c1,c2,c3)).T
 
+    def read_tensorField(self, path):
+        '''
+        Private
+        '''
+        file = open(self.filepath+path, 'r')
+        Lines = file.readlines()
+        index = Lines.index("(\n")
+        c1 = np.loadtxt(self.filepath+path, dtype=str,usecols=0, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c2 = np.loadtxt(self.filepath+path, dtype=str,usecols=1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c3 = np.loadtxt(self.filepath+path, dtype=str,usecols=2, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c4 = np.loadtxt(self.filepath+path, dtype=str,usecols=3, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c5 = np.loadtxt(self.filepath+path, dtype=str,usecols=4, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c6 = np.loadtxt(self.filepath+path, dtype=str,usecols=5, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c7 = np.loadtxt(self.filepath+path, dtype=str,usecols=6, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c8 = np.loadtxt(self.filepath+path, dtype=str,usecols=7, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c9 = np.loadtxt(self.filepath+path, dtype=str,usecols=8, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        for i in range(0,len(c1)):
+            c1[i] = c1[i][1:]
+            c9[i] = c9[i][:-1]
+        c1 = c1.astype(float)
+        c2 = c2.astype(float)
+        c3 = c3.astype(float)
+        c4 = c1.astype(float)
+        c5 = c2.astype(float)
+        c6 = c3.astype(float)
+        c7 = c1.astype(float)
+        c8 = c2.astype(float)
+        c9 = c3.astype(float)
+        return np.vstack((c1,c2,c3,c4,c5,c6,c7,c8,c9)).T
+
+    def read_symmTensorField(self, path):
+        '''
+        Private
+        '''
+        file = open(self.filepath+path, 'r')
+        Lines = file.readlines()
+        index = Lines.index("(\n")
+        c1 = np.loadtxt(self.filepath+path, dtype=str,usecols=0, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c2 = np.loadtxt(self.filepath+path, dtype=str,usecols=1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c3 = np.loadtxt(self.filepath+path, dtype=str,usecols=2, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c4 = np.loadtxt(self.filepath+path, dtype=str,usecols=3, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c5 = np.loadtxt(self.filepath+path, dtype=str,usecols=4, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c6 = np.loadtxt(self.filepath+path, dtype=str,usecols=5, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        for i in range(0,len(c1)):
+            c1[i] = c1[i][1:]
+            c6[i] = c6[i][:-1]
+        c1 = c1.astype(float)
+        c2 = c2.astype(float)
+        c3 = c3.astype(float)
+        c4 = c1.astype(float)
+        c5 = c2.astype(float)
+        c6 = c3.astype(float)
+        return np.vstack((c1,c2,c3,c4,c5,c6)).T
+
     def read_faceList(self):
         '''
         Private
@@ -86,7 +140,7 @@ class FoamCase:
                                 empty = True
                             elif match[0] == 'nFaces':
                                 nFaces = match[1]
-                                if int(nFaces)>1000:
+                                if int(nFaces)>1500:
                                     empty=True
                             elif match[0] == 'startFace':
                                 startFace = match[1]
@@ -151,6 +205,12 @@ class FoamCase:
                         self.parameters[i]=param
                     elif 'volScalarField' in j:
                         param = self.read_scalarField('/'+str(time)+'/'+i)
+                        self.parameters[i]=param
+                    elif 'volTensorField' in j:
+                        param = self.read_tensorField('/'+str(time)+'/'+i)
+                        self.parameters[i]=param
+                    elif 'volSymmTensorField' in j:
+                        param = self.read_symmTensorField('/'+str(time)+'/'+i)
                         self.parameters[i]=param
                     else:
                         pass
@@ -254,6 +314,9 @@ class FoamCase:
             else:
                 line = np.vstack((line,lines.get(next_line)))
             lines[next_line]=np.full((lines[next_line].shape[0], lines[next_line].shape[1]), np.inf)
+            #plt.plot(line[:,0],line[:,1])
+            #plt.savefig('test.png', dpi = 300, bbox_inches='tight')
+            #plt.show()
             if dx == np.inf:
                 line_completed = True 
         return line
