@@ -105,10 +105,10 @@ class FoamCase:
         file = open(self.filepath+path, 'r')
         Lines = file.readlines()
         index = Lines.index("(\n")
-        c1 = np.loadtxt(self.filepath+path, dtype=str,usecols=0, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
-        c2 = np.loadtxt(self.filepath+path, dtype=str,usecols=1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
-        c3 = np.loadtxt(self.filepath+path, dtype=str,usecols=2, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
-        c4 = np.loadtxt(self.filepath+path, dtype=str,usecols=-1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c1 = np.loadtxt(self.filepath+path, dtype='<U9',usecols=0, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c2 = np.loadtxt(self.filepath+path, dtype='<U9',usecols=1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c3 = np.loadtxt(self.filepath+path, dtype='<U9',usecols=2, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
+        c4 = np.loadtxt(self.filepath+path, dtype='<U9',usecols=-1, skiprows=index+1, max_rows=int(Lines[index-1]), delimiter=" ")
         for i in range(0,len(c1)):
             c1[i] = c1[i][2:]
             if c4[i][-1]==')':

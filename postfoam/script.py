@@ -12,6 +12,6 @@ import numpy as np
 #cbfs = fp.FoamCase('/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/convdiv20580')
 #cbfs.plotSurface('k', out='test.png')
 
-pe_hill = fp.FoamCase("/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/case_1p0")
-gu = pe_hill.parameters.get('UPrime2Mean')
-print(gu)
+bump = fp.FoamCase("/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/h20")
+bump.show_parameters()
+bump.plotSurface('k', colorbar=True)
