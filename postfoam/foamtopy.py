@@ -14,12 +14,15 @@ import pandas as pd
 
 
 class FoamCase:
-    def __init__(self, filepath, time = None, readfromfile = False):
+    def __init__(self, filepath, time = None, readfromfile = False, read_parameters = True):
         self.filepath = filepath
         self.parameters = {}
         self.postParameters = {}
         if not readfromfile:
-            self.get_parameters(time)
+            if read_parameters == True:
+                self.get_parameters(time)
+            else:
+                pass
         else:
             self.load_pffile()
 
@@ -37,9 +40,36 @@ class FoamCase:
         for i in range(0,len(c1)):
             c1[i] = c1[i][1:]
             c3[i] = c3[i][:-1]
-        c1 = c1.astype(float)
-        c2 = c2.astype(float)
-        c3 = c3.astype(float)
+        try:
+            c1 = c1.astype(float)
+        except:
+            c_float = np.zerps(len(c1))
+            for d in range(0,len(c1)):
+                try:
+                    c_float[d] = float(c1[d])
+                except:
+                    c_float[d] = 0
+            c1 = c_float
+        try:
+            c2 = c2.astype(float)
+        except:
+            c_float = np.zeros(len(c2))
+            for d in range(0,len(c2)):
+                try:
+                    c_float[d] = float(c2[d])
+                except:
+                    c_float[d] = 0
+            c2 = c_float
+        try:
+            c3 = c3.astype(float)
+        except:
+            c_float = np.zerps(len(c3))
+            for d in range(0,len(c3)):
+                try:
+                    c_float[d] = float(c3[d])
+                except:
+                    c_float[d] = 0
+            c3 = c_float
         return np.vstack((c1,c2,c3)).T
 
     def read_tensorField(self, path):

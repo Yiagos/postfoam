@@ -14,7 +14,7 @@ classifiers = [
 setup(
     name='postfoam',
     packages=find_packages(include=['postfoam']),
-    version='0.1.8',
+    version='0.2.0',
     description='A python library for postporcessing openfoam simulations.',
     #long_description=open('README.md').read(),
     author='Ioannis Kyritsopoulos',

@@ -12,6 +12,6 @@ import numpy as np
 #cbfs = fp.FoamCase('/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/convdiv20580')
 #cbfs.plotSurface('k', out='test.png')
 
-bump = fp.FoamCase("/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/h20")
-bump.show_parameters()
-bump.plotSurface('k', colorbar=True)
+pe_hills = fp.FoamCase("/home/yiagoskyrits/OpenFOAM/yiagoskyrits-9/run/faith_hill")
+pe_hills.show_parameters()
+
